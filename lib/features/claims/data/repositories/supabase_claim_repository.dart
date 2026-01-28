@@ -1,6 +1,9 @@
 import 'dart:developer';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/claim.dart';
+import '../../domain/entities/bill.dart';
+import '../../domain/entities/advance.dart';
+import '../../domain/entities/settlement.dart';
 import '../../domain/repositories/claim_repository.dart';
 
 class SupabaseClaimRepository implements ClaimRepository {
@@ -106,5 +109,44 @@ class SupabaseClaimRepository implements ClaimRepository {
   @override
   Future<void> deleteClaim(String id) async {
     await _client.from('claims').delete().eq('id', id);
+  }
+
+  @override
+  Future<void> addBill(String claimId, Bill bill) async {
+    final json = bill.toJson();
+    json['claim_id'] = claimId;
+    if (bill.id.isEmpty) json.remove('id'); // Let DB generate ID
+    await _client.from('bills').insert(json);
+  }
+
+  @override
+  Future<void> deleteBill(String id) async {
+    await _client.from('bills').delete().eq('id', id);
+  }
+
+  @override
+  Future<void> addAdvance(String claimId, Advance advance) async {
+    final json = advance.toJson();
+    json['claim_id'] = claimId;
+    if (advance.id.isEmpty) json.remove('id');
+    await _client.from('advances').insert(json);
+  }
+
+  @override
+  Future<void> deleteAdvance(String id) async {
+    await _client.from('advances').delete().eq('id', id);
+  }
+
+  @override
+  Future<void> addSettlement(String claimId, Settlement settlement) async {
+    final json = settlement.toJson();
+    json['claim_id'] = claimId;
+    if (settlement.id.isEmpty) json.remove('id');
+    await _client.from('settlements').insert(json);
+  }
+
+  @override
+  Future<void> deleteSettlement(String id) async {
+    await _client.from('settlements').delete().eq('id', id);
   }
 }

@@ -4,6 +4,7 @@ import '../../../claims/presentation/providers/claim_provider.dart';
 import '../widgets/claim_card.dart';
 import '../widgets/summary_stat_card.dart';
 import '../../../claims/presentation/pages/claim_form_screen.dart';
+import '../../../claims/presentation/pages/claim_detail_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -123,7 +124,7 @@ class HomeScreen extends ConsumerWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ClaimFormScreen(claim: claim),
+                              builder: (_) => ClaimDetailScreen(claim: claim),
                             ),
                           );
                         },

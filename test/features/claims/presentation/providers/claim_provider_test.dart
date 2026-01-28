@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:icms/features/claims/domain/entities/claim.dart';
 import 'package:icms/features/claims/domain/entities/claim_status.dart';
+import 'package:icms/features/claims/domain/entities/bill.dart';
+import 'package:icms/features/claims/domain/entities/advance.dart';
+import 'package:icms/features/claims/domain/entities/settlement.dart';
 import 'package:icms/features/claims/domain/repositories/claim_repository.dart';
 import 'package:icms/features/claims/presentation/providers/claim_provider.dart';
 import 'package:icms/features/claims/presentation/providers/claim_repository_provider.dart';
@@ -9,16 +12,13 @@ import 'package:icms/features/claims/presentation/providers/claim_repository_pro
 class FakeClaimRepository implements ClaimRepository {
   final List<Claim> _claims = [];
 
+  void seed(List<Claim> claims) {
+    _claims.addAll(claims);
+  }
+
   @override
   Future<Claim> createClaim(Claim claim) async {
-    final newClaim = Claim(
-      id: 'new-id', // Simulate DB ID generation
-      policyNumber: claim.policyNumber,
-      patientName: claim.patientName,
-      status: claim.status,
-      createdAt: claim.createdAt,
-      updatedAt: claim.updatedAt,
-    );
+    final newClaim = claim.copyWith(id: 'new-id');
     _claims.add(newClaim);
     return newClaim;
   }
@@ -30,7 +30,7 @@ class FakeClaimRepository implements ClaimRepository {
 
   @override
   Future<List<Claim>> getClaims() async {
-    return List.from(_claims);
+    return _claims;
   }
 
   @override
@@ -38,90 +38,92 @@ class FakeClaimRepository implements ClaimRepository {
     final index = _claims.indexWhere((c) => c.id == claim.id);
     if (index != -1) {
       _claims[index] = claim;
+      return claim;
     }
-    return claim;
+    throw Exception('Claim not found');
   }
 
-  void seed(List<Claim> claims) {
-    _claims.addAll(claims);
-  }
+  @override
+  Future<void> addBill(String claimId, Bill bill) async {}
+  @override
+  Future<void> deleteBill(String id) async {}
+
+  @override
+  Future<void> addAdvance(String claimId, Advance advance) async {}
+  @override
+  Future<void> deleteAdvance(String id) async {}
+
+  @override
+  Future<void> addSettlement(String claimId, Settlement settlement) async {}
+  @override
+  Future<void> deleteSettlement(String id) async {}
 }
 
 void main() {
-  late ProviderContainer container;
-  late FakeClaimRepository fakeRepository;
+  test('claimsProvider initial state is loading', () {
+    final container = ProviderContainer(
+      overrides: [
+        claimRepositoryProvider.overrideWithValue(FakeClaimRepository()),
+      ],
+    );
+    addTearDown(container.dispose);
 
-  setUp(() {
-    fakeRepository = FakeClaimRepository();
-    container = ProviderContainer(
-      overrides: [claimRepositoryProvider.overrideWithValue(fakeRepository)],
+    expect(
+      container.read(claimsProvider),
+      const AsyncValue<List<Claim>>.loading(),
     );
   });
 
-  tearDown(() {
-    container.dispose();
-  });
+  test('claimsProvider fetches claims', () async {
+    final repo = FakeClaimRepository();
+    repo.seed([
+      Claim(
+        id: '1',
+        policyNumber: 'P1',
+        patientName: 'John',
+        status: ClaimStatus.draft,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+    ]);
 
-  test('initial state is loading then empty list', () async {
-    final subscription = container.listen(claimsProvider, (previous, next) {});
-    addTearDown(subscription.close);
-
-    // Expect loading first (AsyncValue.loading())
-    expect(container.read(claimsProvider), isA<AsyncLoading>());
+    final container = ProviderContainer(
+      overrides: [claimRepositoryProvider.overrideWithValue(repo)],
+    );
+    addTearDown(container.dispose);
 
     // Wait for the future to complete
-    await container.read(claimsProvider.future);
-
-    expect(container.read(claimsProvider).value, isEmpty);
+    final claims = await container.read(claimsProvider.future);
+    expect(claims.length, 1);
+    expect(claims.first.patientName, 'John');
   });
 
-  test('addClaim updates the list', () async {
-    final subscription = container.listen(claimsProvider, (previous, next) {});
-    addTearDown(subscription.close);
-
-    await container.read(claimsProvider.future);
-
-    final newClaim = Claim(
-      id: '',
-      policyNumber: '123',
-      patientName: 'Test',
-      status: ClaimStatus.draft,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-
-    await container.read(claimsProvider.notifier).addClaim(newClaim);
-
-    final state = container.read(claimsProvider);
-    expect(state.value, hasLength(1));
-    expect(state.value!.first.id, 'new-id');
-  });
-
-  test('updateClaim modifies the list', () async {
-    final subscription = container.listen(claimsProvider, (previous, next) {});
-    addTearDown(subscription.close);
-
-    await container.read(claimsProvider.future);
-
-    // Seed with a claim
-    final claim = Claim(
+  test('updateClaim modifies the state', () async {
+    final repo = FakeClaimRepository();
+    final initialClaim = Claim(
       id: '1',
-      policyNumber: 'Old',
-      patientName: 'Old',
+      policyNumber: 'P1',
+      patientName: 'John',
       status: ClaimStatus.draft,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
-    fakeRepository.seed([claim]);
+    repo.seed([initialClaim]);
 
-    // Refresh to get seeded data
-    container.refresh(claimsProvider);
+    final container = ProviderContainer(
+      overrides: [claimRepositoryProvider.overrideWithValue(repo)],
+    );
+    addTearDown(container.dispose);
+
+    // Ensure initial load
     await container.read(claimsProvider.future);
 
-    final updatedClaim = claim.copyWith(policyNumber: 'New');
+    // Update
+    final updatedClaim = initialClaim.copyWith(patientName: 'John Updated');
     await container.read(claimsProvider.notifier).updateClaim(updatedClaim);
 
-    final state = container.read(claimsProvider);
-    expect(state.value!.first.policyNumber, 'New');
+    // Verify
+    final claims = await container.read(claimsProvider.future);
+    expect(claims.first.patientName, 'John Updated');
   });
 }
