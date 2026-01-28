@@ -15,7 +15,10 @@ class SupabaseClaimRepository implements ClaimRepository {
         .order('created_at', ascending: false);
 
     // Response from Supabase select is a List<dynamic> (List<Map<String, dynamic>>)
-    final data = response as List<dynamic>;
+    final data = response as List<dynamic>?;
+    if (data == null) {
+      return [];
+    }
     return data
         .map((json) => Claim.fromJson(json as Map<String, dynamic>))
         .toList();

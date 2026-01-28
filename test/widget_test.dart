@@ -1,26 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:icms/features/claims/domain/entities/claim.dart';
+import 'package:icms/features/claims/domain/repositories/claim_repository.dart';
+import 'package:icms/features/claims/presentation/providers/claim_repository_provider.dart';
 import 'package:icms/features/dashboard/presentation/pages/home_screen.dart';
 
-// Mock classes would typically go here or in a separate file
-// For this simple test, we might need to adjust how we test main()
-// or test a widget that doesn't require full Supabase init if we can't mock easily in a single file without Mockito.
-// However, since we modified main(), the default test might fail if it tries to run main() or MyApp() without setup.
+class FakeClaimRepository implements ClaimRepository {
+  @override
+  Future<Claim> createClaim(Claim claim) async => claim;
+
+  @override
+  Future<void> deleteClaim(String id) async {}
+
+  @override
+  Future<List<Claim>> getClaims() async => []; // Return empty list for empty state test
+
+  @override
+  Future<Claim> updateClaim(Claim claim) async => claim;
+}
 
 void main() {
-  testWidgets('App starts and displays home screen', (
+  testWidgets('App displays dashboard with empty state', (
     WidgetTester tester,
   ) async {
-    // We need to mock dotenv and Supabase for this to work in a test environment
-    // OR we can just test the HomeScreen directly which is safer for widget tests.
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          claimRepositoryProvider.overrideWithValue(FakeClaimRepository()),
+        ],
+        child: const MaterialApp(home: HomeScreen()),
+      ),
+    );
 
-    // await tester.pumpWidget(const MyApp()); // This would fail without mocking
+    // Initial load might show spinner
+    await tester.pump(); // Trigger build
+    // Riverpod async loading...
 
-    // Instead, let's test the UI component directly to ensure it still renders
-    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    // Wait for animations and async tasks
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
 
-    // Verify that the home screen is displayed.
-    expect(find.text('Insurance Claim Management'), findsOneWidget);
-    expect(find.text('Welcome to ICMS'), findsOneWidget);
+    // Verify AppBar title
+    expect(find.text('Dashboard'), findsOneWidget);
+
+    // Verify Overview section
+    expect(find.text('Overview'), findsOneWidget);
+
+    // Verify Empty State
+    expect(find.text('No claims found.'), findsOneWidget);
+
+    // Verify Floating Action Button
+    expect(find.text('New Claim'), findsOneWidget);
   });
 }
