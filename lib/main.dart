@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
 
-void main() {
+import 'core/config/env_config.dart';
+import 'core/services/supabase_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EnvConfig.load();
+  await SupabaseService.initialize();
   runApp(const MyApp());
 }
 
