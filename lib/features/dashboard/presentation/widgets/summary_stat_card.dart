@@ -20,7 +20,7 @@ class SummaryStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SizedBox(
-      height: 120,
+      height: 140, // Increased to prevent overflow
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -28,7 +28,7 @@ class SummaryStatCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(16.0), // Reduced buffer
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

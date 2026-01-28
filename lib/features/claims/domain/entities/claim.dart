@@ -70,30 +70,61 @@ class Claim {
   }
 
   factory Claim.fromJson(Map<String, dynamic> json) {
-    return Claim(
-      id: json['id'] as String,
-      policyNumber: json['policy_number'] as String,
-      patientName: json['patient_name'] as String,
-      patientEmail: json['patient_email'] as String?,
-      status: ClaimStatus.fromString(json['status'] as String),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      bills:
-          (json['bills'] as List<dynamic>?)
-              ?.map((e) => Bill.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      advances:
-          (json['advances'] as List<dynamic>?)
-              ?.map((e) => Advance.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      settlements:
-          (json['settlements'] as List<dynamic>?)
-              ?.map((e) => Settlement.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-    );
+    try {
+      return Claim(
+        id:
+            json['id'] as String? ??
+            '', // Handle potential null ID if generated client-side is expected but missing
+        policyNumber: json['policy_number'] as String? ?? 'UNKNOWN',
+        patientName: json['patient_name'] as String? ?? 'Unknown Patient',
+        patientEmail: json['patient_email'] as String?,
+        status: ClaimStatus.fromString(json['status'] as String? ?? 'draft'),
+        createdAt:
+            DateTime.tryParse(json['created_at'] as String? ?? '') ??
+            DateTime.now(),
+        updatedAt:
+            DateTime.tryParse(json['updated_at'] as String? ?? '') ??
+            DateTime.now(),
+        bills: _safeList<Bill>(json['bills'], (x) => Bill.fromJson(x)),
+        advances: _safeList<Advance>(
+          json['advances'],
+          (x) => Advance.fromJson(x),
+        ),
+        settlements: _safeList<Settlement>(
+          json['settlements'],
+          (x) => Settlement.fromJson(x),
+        ),
+      );
+    } catch (e, stack) {
+      // Log the error to console for debugging if parsing fails
+      // ignore: avoid_print
+      print('Error inside Claim.fromJson: $e\n$stack');
+      // ignore: avoid_print
+      print('JSON content: $json');
+      rethrow;
+    }
+  }
+
+  static List<T> _safeList<T>(
+    dynamic list,
+    T Function(Map<String, dynamic>) mapper,
+  ) {
+    if (list is List) {
+      return list
+          .map((item) {
+            if (item is Map<String, dynamic>) {
+              return mapper(item);
+            }
+            // Handle case where item might be cast-able map
+            if (item is Map) {
+              return mapper(Map<String, dynamic>.from(item));
+            }
+            return null;
+          })
+          .whereType<T>()
+          .toList();
+    }
+    return [];
   }
 
   Map<String, dynamic> toJson() {

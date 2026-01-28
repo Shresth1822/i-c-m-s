@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/claim.dart';
 import '../../domain/repositories/claim_repository.dart';
@@ -9,19 +10,40 @@ class SupabaseClaimRepository implements ClaimRepository {
 
   @override
   Future<List<Claim>> getClaims() async {
-    final response = await _client
-        .from('claims')
-        .select('*, bills(*), advances(*), settlements(*)')
-        .order('created_at', ascending: false);
+    try {
+      final response = await _client
+          .from('claims')
+          .select('*, bills(*), advances(*), settlements(*)')
+          .order('created_at', ascending: false);
 
-    // Response from Supabase select is a List<dynamic> (List<Map<String, dynamic>>)
-    final data = response as List<dynamic>?;
-    if (data == null) {
-      return [];
+      // response is PostgrestList which acts as List<Map<String, dynamic>>
+      final data = response;
+
+      return data.map((json) {
+        try {
+          return Claim.fromJson(json);
+        } catch (e, stack) {
+          log(
+            'Error parsing claim JSON: $json',
+            name: 'SupabaseClaimRepository',
+            error: e,
+            stackTrace: stack,
+          );
+          // Return a placeholder or rethrow. Rethrowing to make it visible.
+          // In production, we might want to skip malformed items:
+          // return null;
+          rethrow;
+        }
+      }).toList();
+    } catch (e, stack) {
+      log(
+        'Error fetching claims',
+        name: 'SupabaseClaimRepository',
+        error: e,
+        stackTrace: stack,
+      );
+      rethrow;
     }
-    return data
-        .map((json) => Claim.fromJson(json as Map<String, dynamic>))
-        .toList();
   }
 
   @override
