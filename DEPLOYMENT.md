@@ -23,17 +23,22 @@ This project is ready for deployment as a static site (Flutter Web).
 
 ## Deploying to Vercel
 
-### Option 1: Git Integration (Recommended)
+### Option 1: Git Integration (Easiest for Static Site)
 
-1.  Push your code to GitHub/GitLab/Bitbucket.
-2.  Import the project in Vercel.
-3.  **Build Settings**:
-    - Framework Preset: `Other`
-    - Build Command: `flutter build web --release`
-    - Output Directory: `build/web`
-4.  **Environment Variables**:
-    - You may need to create a script to generate the `.env` file during the build process on Vercel if you don't commit it (which is best practice).
-    - _Simpler Approach for Demo_: Since `.env` is currently committed/assets-bundled, just ensure it's correct.
+1.  **Commit the Build Artifacts**:
+    - We have enabled committing the `build/web` folder.
+    - Run `flutter build web --release`.
+    - `git add build/web`
+    - `git commit -m "chore: Add build artifacts for deployment"`
+    - `git push`
+
+2.  **Vercel Settings**:
+    - Import the project in Vercel.
+    - **Framework Preset**: `Other`
+    - **Build Command**: Toggle "Override" and leave it **empty** (or use `echo "Using pre-built assets"`).
+    - **Output Directory**: `build/web`
+
+3.  **Deploy**: Vercel will simply serve the files you committed.
 
 ### Option 2: Vercel CLI
 
