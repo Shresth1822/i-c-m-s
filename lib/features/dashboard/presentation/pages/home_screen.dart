@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../claims/presentation/providers/claim_provider.dart';
 import '../widgets/claim_card.dart';
 import '../widgets/summary_stat_card.dart';
+import '../../../claims/presentation/pages/claim_form_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -117,7 +118,14 @@ class HomeScreen extends ConsumerWidget {
                       return ClaimCard(
                         claim: claim,
                         onTap: () {
-                          // TODO: Navigate to detail
+                          // For Phase 6: Edit Claim directly.
+                          // Phase 7: Will change to ClaimDetailScreen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ClaimFormScreen(claim: claim),
+                            ),
+                          );
                         },
                       );
                     }, childCount: claims.length),
@@ -137,7 +145,10 @@ class HomeScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO: Navigate to create claim
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ClaimFormScreen()),
+          );
         },
         label: const Text('New Claim'),
         icon: const Icon(Icons.add),
