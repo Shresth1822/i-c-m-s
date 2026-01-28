@@ -168,8 +168,12 @@ class ClaimDetailScreen extends ConsumerWidget {
                   ? () => _showAddBillDialog(context, ref, latestClaim.id)
                   : null,
               onDelete: role == UserRole.user
-                  ? (bill) =>
-                        ref.read(claimsProvider.notifier).deleteBill(bill.id)
+                  ? (bill) => _confirmDelete(
+                      context,
+                      'Bill',
+                      () =>
+                          ref.read(claimsProvider.notifier).deleteBill(bill.id),
+                    )
                   : null,
               itemBuilder: (context, bill) => ListTile(
                 contentPadding: EdgeInsets.zero,
@@ -191,8 +195,13 @@ class ClaimDetailScreen extends ConsumerWidget {
                   ? () => _showAddAdvanceDialog(context, ref, latestClaim.id)
                   : null,
               onDelete: role == UserRole.admin
-                  ? (adv) =>
-                        ref.read(claimsProvider.notifier).deleteAdvance(adv.id)
+                  ? (adv) => _confirmDelete(
+                      context,
+                      'Advance',
+                      () => ref
+                          .read(claimsProvider.notifier)
+                          .deleteAdvance(adv.id),
+                    )
                   : null,
               itemBuilder: (context, adv) => ListTile(
                 contentPadding: EdgeInsets.zero,
@@ -256,8 +265,11 @@ class ClaimDetailScreen extends ConsumerWidget {
       return SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
-          onPressed: () =>
-              ref.read(claimsProvider.notifier).submitClaim(claim.id),
+          onPressed: () => _performAction(
+            context,
+            () => ref.read(claimsProvider.notifier).submitClaim(claim.id),
+            successMessage: 'Claim submitted successfully',
+          ),
           icon: const Icon(Icons.send),
           label: const Text('Submit Claim'),
         ),
@@ -267,8 +279,11 @@ class ClaimDetailScreen extends ConsumerWidget {
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () =>
-                  ref.read(claimsProvider.notifier).rejectClaim(claim.id),
+              onPressed: () => _performAction(
+                context,
+                () => ref.read(claimsProvider.notifier).rejectClaim(claim.id),
+                successMessage: 'Claim rejected',
+              ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
                 side: const BorderSide(color: Colors.red),
@@ -280,8 +295,11 @@ class ClaimDetailScreen extends ConsumerWidget {
           const SizedBox(width: 16),
           Expanded(
             child: FilledButton.icon(
-              onPressed: () =>
-                  ref.read(claimsProvider.notifier).approveClaim(claim.id),
+              onPressed: () => _performAction(
+                context,
+                () => ref.read(claimsProvider.notifier).approveClaim(claim.id),
+                successMessage: 'Claim approved',
+              ),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
@@ -391,8 +409,13 @@ class ClaimDetailScreen extends ConsumerWidget {
                   description: descController.text,
                   claimId: claimId,
                 );
-                ref.read(claimsProvider.notifier).addBill(claimId, bill);
-                Navigator.pop(ctx);
+                Navigator.pop(ctx); // Close dialog first
+                _performAction(
+                  context,
+                  () =>
+                      ref.read(claimsProvider.notifier).addBill(claimId, bill),
+                  successMessage: 'Bill added',
+                );
               }
             },
             child: const Text('Add'),
@@ -446,8 +469,14 @@ class ClaimDetailScreen extends ConsumerWidget {
                   reason: reasonController.text,
                   claimId: claimId,
                 );
-                ref.read(claimsProvider.notifier).addAdvance(claimId, advance);
                 Navigator.pop(ctx);
+                _performAction(
+                  context,
+                  () => ref
+                      .read(claimsProvider.notifier)
+                      .addAdvance(claimId, advance),
+                  successMessage: 'Advance added',
+                );
               }
             },
             child: const Text('Add'),
@@ -501,16 +530,83 @@ class ClaimDetailScreen extends ConsumerWidget {
                   notes: notesController.text,
                   claimId: claimId,
                 );
-                ref
-                    .read(claimsProvider.notifier)
-                    .addSettlement(claimId, settlement);
                 Navigator.pop(ctx);
+                _performAction(
+                  context,
+                  () => ref
+                      .read(claimsProvider.notifier)
+                      .addSettlement(claimId, settlement),
+                  successMessage: 'Settlement added',
+                );
               }
             },
             child: const Text('Add'),
           ),
         ],
       ),
+    );
+  }
+}
+
+Future<void> _performAction(
+  BuildContext context,
+  Future<void> Function() action, {
+  String successMessage = 'Operation successful',
+}) async {
+  try {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    await action();
+
+    if (context.mounted) {
+      Navigator.pop(context); // Dismiss loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(successMessage), backgroundColor: Colors.green),
+      );
+    }
+  } catch (e) {
+    if (context.mounted) {
+      Navigator.pop(context); // Dismiss loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
+}
+
+Future<void> _confirmDelete(
+  BuildContext context,
+  String title,
+  VoidCallback onDelete,
+) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text('Delete $title?'),
+      content: const Text('This action cannot be undone.'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true && context.mounted) {
+    await _performAction(
+      context,
+      () async => onDelete(),
+      successMessage: '$title deleted successfully',
     );
   }
 }
