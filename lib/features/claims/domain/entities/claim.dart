@@ -28,11 +28,12 @@ class Claim {
     this.settlements = const [],
   });
 
-  double get totalBillAmount => bills.fold(0, (sum, item) => sum + item.amount);
+  // Computed Getters
+  double get totalBillAmount => bills.fold(0, (sum, bill) => sum + bill.amount);
   double get totalAdvanceAmount =>
-      advances.fold(0, (sum, item) => sum + item.amount);
+      advances.fold(0, (sum, adv) => sum + adv.amount);
   double get totalSettledAmount =>
-      settlements.fold(0, (sum, item) => sum + item.amount);
+      settlements.fold(0, (sum, set) => sum + set.amount);
 
   // Pending amount is total bills minus what has already been settled.
   // Advances are typically deducted from the final settlement, but for "pending"
@@ -40,7 +41,33 @@ class Claim {
   // If advances count as "already paid", then Pending = Bills - (Settlements + Advances).
   // Let's assume Pending = Bills - Settlements - Advances for now.
   double get pendingAmount =>
-      totalBillAmount - totalSettledAmount - totalAdvanceAmount;
+      totalBillAmount - totalAdvanceAmount - totalSettledAmount;
+
+  Claim copyWith({
+    String? id,
+    String? policyNumber,
+    String? patientName,
+    String? patientEmail,
+    ClaimStatus? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    List<Bill>? bills,
+    List<Advance>? advances,
+    List<Settlement>? settlements,
+  }) {
+    return Claim(
+      id: id ?? this.id,
+      policyNumber: policyNumber ?? this.policyNumber,
+      patientName: patientName ?? this.patientName,
+      patientEmail: patientEmail ?? this.patientEmail,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      bills: bills ?? this.bills,
+      advances: advances ?? this.advances,
+      settlements: settlements ?? this.settlements,
+    );
+  }
 
   factory Claim.fromJson(Map<String, dynamic> json) {
     return Claim(
