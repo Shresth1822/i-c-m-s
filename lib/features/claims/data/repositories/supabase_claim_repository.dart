@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/claim.dart';
+import '../../domain/entities/claim_status.dart';
 import '../../domain/entities/bill.dart';
 import '../../domain/entities/advance.dart';
 import '../../domain/entities/settlement.dart';
@@ -109,6 +110,17 @@ class SupabaseClaimRepository implements ClaimRepository {
   @override
   Future<void> deleteClaim(String id) async {
     await _client.from('claims').delete().eq('id', id);
+  }
+
+  @override
+  Future<void> updateClaimStatus(String id, ClaimStatus status) async {
+    await _client
+        .from('claims')
+        .update({
+          'status': status.name,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', id);
   }
 
   @override

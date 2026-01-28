@@ -29,6 +29,14 @@ class FakeClaimRepository implements ClaimRepository {
   }
 
   @override
+  Future<void> updateClaimStatus(String id, ClaimStatus status) async {
+    final index = _claims.indexWhere((c) => c.id == id);
+    if (index != -1) {
+      _claims[index] = _claims[index].copyWith(status: status);
+    }
+  }
+
+  @override
   Future<List<Claim>> getClaims() async {
     return _claims;
   }

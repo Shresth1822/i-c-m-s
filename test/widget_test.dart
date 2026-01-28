@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:icms/features/claims/domain/entities/claim.dart';
+import 'package:icms/features/claims/domain/entities/claim_status.dart';
 import 'package:icms/features/claims/domain/entities/bill.dart';
 import 'package:icms/features/claims/domain/entities/advance.dart';
 import 'package:icms/features/claims/domain/entities/settlement.dart';
@@ -18,6 +19,8 @@ class FakeClaimRepository implements ClaimRepository {
   Future<Claim> updateClaim(Claim claim) async => claim;
   @override
   Future<void> deleteClaim(String id) async {}
+  @override
+  Future<void> updateClaimStatus(String id, ClaimStatus status) async {}
 
   @override
   Future<void> addBill(String claimId, Bill bill) async {}

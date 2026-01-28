@@ -3,7 +3,8 @@ enum ClaimStatus {
   submitted,
   approved,
   rejected,
-  partiallySettled;
+  partiallySettled,
+  settled;
 
   String get label {
     switch (this) {
@@ -17,6 +18,8 @@ enum ClaimStatus {
         return 'Rejected';
       case ClaimStatus.partiallySettled:
         return 'Partially Settled';
+      case ClaimStatus.settled:
+        return 'Settled';
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/claim.dart';
+import '../../domain/entities/claim_status.dart';
 import '../../domain/entities/bill.dart';
 import '../../domain/entities/advance.dart';
 import '../../domain/entities/settlement.dart';
@@ -218,10 +219,87 @@ class ClaimDetailScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            const Divider(height: 48),
+            _buildActionButtons(context, ref, latestClaim),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildActionButtons(BuildContext context, WidgetRef ref, Claim claim) {
+    if (claim.status == ClaimStatus.draft) {
+      return SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: () =>
+              ref.read(claimsProvider.notifier).submitClaim(claim.id),
+          icon: const Icon(Icons.send),
+          label: const Text('Submit Claim'),
+        ),
+      );
+    } else if (claim.status == ClaimStatus.submitted) {
+      return Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () =>
+                  ref.read(claimsProvider.notifier).rejectClaim(claim.id),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.red,
+                side: const BorderSide(color: Colors.red),
+              ),
+              icon: const Icon(Icons.close),
+              label: const Text('Reject'),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: FilledButton.icon(
+              onPressed: () =>
+                  ref.read(claimsProvider.notifier).approveClaim(claim.id),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.check),
+              label: const Text('Approve'),
+            ),
+          ),
+        ],
+      );
+    } else if (claim.status == ClaimStatus.rejected) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.red.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.red.withValues(alpha: 0.5)),
+        ),
+        child: const Text(
+          'This claim has been rejected.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        ),
+      );
+    } else if (claim.status == ClaimStatus.settled) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.teal.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.teal.withValues(alpha: 0.5)),
+        ),
+        child: const Text(
+          'This claim is fully settled.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _buildSummaryItem(

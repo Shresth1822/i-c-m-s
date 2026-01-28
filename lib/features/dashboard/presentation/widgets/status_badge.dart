@@ -18,6 +18,8 @@ class StatusBadge extends StatelessWidget {
         return Colors.red;
       case ClaimStatus.partiallySettled:
         return Colors.purple;
+      case ClaimStatus.settled:
+        return Colors.teal;
     }
   }
 
