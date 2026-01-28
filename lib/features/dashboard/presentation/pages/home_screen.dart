@@ -5,6 +5,7 @@ import '../widgets/claim_card.dart';
 import '../widgets/summary_stat_card.dart';
 import '../../../claims/presentation/pages/claim_form_screen.dart';
 import '../../../claims/presentation/pages/claim_detail_screen.dart';
+import '../../../auth/presentation/providers/role_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,31 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('Dashboard'),
         centerTitle: false,
         actions: [
+          Row(
+            children: [
+              Text(
+                'User',
+                style: TextStyle(
+                  fontWeight: ref.watch(roleProvider) == UserRole.user
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+              Switch(
+                value: ref.watch(roleProvider) == UserRole.admin,
+                onChanged: (_) => ref.read(roleProvider.notifier).toggle(),
+              ),
+              Text(
+                'Admin',
+                style: TextStyle(
+                  fontWeight: ref.watch(roleProvider) == UserRole.admin
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 16),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
@@ -144,16 +170,18 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ClaimFormScreen()),
-          );
-        },
-        label: const Text('New Claim'),
-        icon: const Icon(Icons.add),
-      ),
+      floatingActionButton: ref.watch(roleProvider) == UserRole.user
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ClaimFormScreen()),
+                );
+              },
+              label: const Text('New Claim'),
+              icon: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }

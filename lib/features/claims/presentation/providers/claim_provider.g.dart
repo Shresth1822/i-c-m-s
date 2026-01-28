@@ -6,7 +6,7 @@ part of 'claim_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$claimsHash() => r'400fbd0a44baaf7e8da74b61d26b5ed5eeff9ba5';
+String _$claimsHash() => r'6dd5d0d4223e5c5504436411043943d73b91f254';
 
 /// See also [Claims].
 @ProviderFor(Claims)

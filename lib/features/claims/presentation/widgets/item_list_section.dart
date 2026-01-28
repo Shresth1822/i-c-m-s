@@ -4,7 +4,7 @@ class ItemListSection<T> extends StatelessWidget {
   final String title;
   final List<T> items;
   final Widget Function(BuildContext, T) itemBuilder;
-  final VoidCallback onAdd;
+  final VoidCallback? onAdd;
   final Function(T)? onDelete;
 
   const ItemListSection({
@@ -12,7 +12,7 @@ class ItemListSection<T> extends StatelessWidget {
     required this.title,
     required this.items,
     required this.itemBuilder,
-    required this.onAdd,
+    this.onAdd,
     this.onDelete,
   });
 
@@ -30,11 +30,12 @@ class ItemListSection<T> extends StatelessWidget {
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            IconButton(
-              onPressed: onAdd,
-              icon: const Icon(Icons.add_circle_outline),
-              tooltip: 'Add $title',
-            ),
+            if (onAdd != null)
+              IconButton(
+                onPressed: onAdd,
+                icon: const Icon(Icons.add_circle_outline),
+                tooltip: 'Add $title',
+              ),
           ],
         ),
         if (items.isEmpty)

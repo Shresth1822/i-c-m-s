@@ -8,6 +8,7 @@ import '../../domain/entities/advance.dart';
 import '../../domain/entities/settlement.dart';
 import '../providers/claim_provider.dart';
 import '../widgets/item_list_section.dart';
+import '../../../auth/presentation/providers/role_provider.dart';
 
 import 'claim_form_screen.dart';
 
@@ -32,7 +33,9 @@ class ClaimDetailScreen extends ConsumerWidget {
 
     // We watch the provider to get the latest version of this claim
     // (in case sub-items are added/removed)
+    // (in case sub-items are added/removed)
     final claimsAsync = ref.watch(claimsProvider);
+    final role = ref.watch(roleProvider);
 
     // Find the specific claim in the list
     final latestClaim =
@@ -161,9 +164,13 @@ class ClaimDetailScreen extends ConsumerWidget {
             ItemListSection<Bill>(
               title: 'Bills',
               items: latestClaim.bills,
-              onAdd: () => _showAddBillDialog(context, ref, latestClaim.id),
-              onDelete: (bill) =>
-                  ref.read(claimsProvider.notifier).deleteBill(bill.id),
+              onAdd: role == UserRole.user
+                  ? () => _showAddBillDialog(context, ref, latestClaim.id)
+                  : null,
+              onDelete: role == UserRole.user
+                  ? (bill) =>
+                        ref.read(claimsProvider.notifier).deleteBill(bill.id)
+                  : null,
               itemBuilder: (context, bill) => ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(bill.description ?? 'Bill'),
@@ -180,9 +187,13 @@ class ClaimDetailScreen extends ConsumerWidget {
             ItemListSection<Advance>(
               title: 'Advances',
               items: latestClaim.advances,
-              onAdd: () => _showAddAdvanceDialog(context, ref, latestClaim.id),
-              onDelete: (adv) =>
-                  ref.read(claimsProvider.notifier).deleteAdvance(adv.id),
+              onAdd: role == UserRole.admin
+                  ? () => _showAddAdvanceDialog(context, ref, latestClaim.id)
+                  : null,
+              onDelete: role == UserRole.admin
+                  ? (adv) =>
+                        ref.read(claimsProvider.notifier).deleteAdvance(adv.id)
+                  : null,
               itemBuilder: (context, adv) => ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(adv.reason ?? 'Advance'),
@@ -202,10 +213,14 @@ class ClaimDetailScreen extends ConsumerWidget {
             ItemListSection<Settlement>(
               title: 'Settlements',
               items: latestClaim.settlements,
-              onAdd: () =>
-                  _showAddSettlementDialog(context, ref, latestClaim.id),
-              onDelete: (st) =>
-                  ref.read(claimsProvider.notifier).deleteSettlement(st.id),
+              onAdd: role == UserRole.admin
+                  ? () => _showAddSettlementDialog(context, ref, latestClaim.id)
+                  : null,
+              onDelete: role == UserRole.admin
+                  ? (st) => ref
+                        .read(claimsProvider.notifier)
+                        .deleteSettlement(st.id)
+                  : null,
               itemBuilder: (context, st) => ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(st.notes ?? 'Settlement'),
@@ -220,7 +235,16 @@ class ClaimDetailScreen extends ConsumerWidget {
               ),
             ),
             const Divider(height: 48),
-            _buildActionButtons(context, ref, latestClaim),
+            if (role == UserRole.user &&
+                latestClaim.status == ClaimStatus.draft) ...[
+              _buildActionButtons(context, ref, latestClaim),
+            ] else if (role == UserRole.admin &&
+                latestClaim.status == ClaimStatus.submitted) ...[
+              _buildActionButtons(context, ref, latestClaim),
+            ] else if (latestClaim.status == ClaimStatus.rejected ||
+                latestClaim.status == ClaimStatus.settled) ...[
+              _buildActionButtons(context, ref, latestClaim),
+            ],
           ],
         ),
       ),

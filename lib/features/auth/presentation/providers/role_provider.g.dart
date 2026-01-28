@@ -1,27 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'claim_repository_provider.dart';
+part of 'role_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$claimRepositoryHash() => r'3005b87790b60ff52ab67aa533223c8c6b2470ed';
+String _$roleHash() => r'efff3bca57355a178900436a9d828f42ed2d7ef2';
 
-/// See also [claimRepository].
-@ProviderFor(claimRepository)
-final claimRepositoryProvider = AutoDisposeProvider<ClaimRepository>.internal(
-  claimRepository,
-  name: r'claimRepositoryProvider',
+/// See also [Role].
+@ProviderFor(Role)
+final roleProvider = AutoDisposeNotifierProvider<Role, UserRole>.internal(
+  Role.new,
+  name: r'roleProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$claimRepositoryHash,
+      : _$roleHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ClaimRepositoryRef = AutoDisposeProviderRef<ClaimRepository>;
+typedef _$Role = AutoDisposeNotifier<UserRole>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
