@@ -128,9 +128,24 @@ class ClaimDetailScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Financial Summary
-            Card(
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF673AB7), Color(0xFF2196F3)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF673AB7).withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(24.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -138,6 +153,7 @@ class ClaimDetailScreen extends ConsumerWidget {
                       context,
                       'Total Bill',
                       currencyFormat.format(latestClaim.totalBillAmount),
+                      isWhite: true,
                     ),
                     _buildSummaryItem(
                       context,
@@ -146,13 +162,15 @@ class ClaimDetailScreen extends ConsumerWidget {
                         latestClaim.totalSettledAmount +
                             latestClaim.totalAdvanceAmount,
                       ),
-                      color: Colors.green,
+                      color: Colors.lightGreenAccent, // Brighter for contrast
+                      isWhite: true,
                     ),
                     _buildSummaryItem(
                       context,
                       'Pending',
                       currencyFormat.format(latestClaim.pendingAmount),
-                      color: Colors.orange,
+                      color: Colors.orangeAccent, // Brighter for contrast
+                      isWhite: true,
                     ),
                   ],
                 ),
@@ -163,6 +181,7 @@ class ClaimDetailScreen extends ConsumerWidget {
             // Bills Section
             ItemListSection<Bill>(
               title: 'Bills',
+              description: 'Medical expenses incurred by the patient.',
               items: latestClaim.bills,
               onAdd: role == UserRole.user
                   ? () => _showAddBillDialog(context, ref, latestClaim.id)
@@ -190,6 +209,7 @@ class ClaimDetailScreen extends ConsumerWidget {
             // Advances Section
             ItemListSection<Advance>(
               title: 'Advances',
+              description: 'Partial payments made before final settlement.',
               items: latestClaim.advances,
               onAdd: role == UserRole.admin
                   ? () => _showAddAdvanceDialog(context, ref, latestClaim.id)
@@ -221,6 +241,7 @@ class ClaimDetailScreen extends ConsumerWidget {
             // Settlements Section
             ItemListSection<Settlement>(
               title: 'Settlements',
+              description: 'Final payments to clear the claim balance.',
               items: latestClaim.settlements,
               onAdd: role == UserRole.admin
                   ? () => _showAddSettlementDialog(context, ref, latestClaim.id)
@@ -346,21 +367,27 @@ class ClaimDetailScreen extends ConsumerWidget {
 
   Widget _buildSummaryItem(
     BuildContext context,
-    String label,
+    String title,
     String value, {
     Color? color,
+    bool isWhite = false,
   }) {
     return Column(
       children: [
         Text(
           value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
-            color: color,
+            color: color ?? (isWhite ? Colors.white : null),
           ),
         ),
         const SizedBox(height: 4),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: isWhite ? Colors.white70 : Colors.grey[600],
+          ),
+        ),
       ],
     );
   }

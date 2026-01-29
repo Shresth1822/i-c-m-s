@@ -7,9 +7,12 @@ class ItemListSection<T> extends StatelessWidget {
   final VoidCallback? onAdd;
   final Function(T)? onDelete;
 
+  final String? description;
+
   const ItemListSection({
     super.key,
     required this.title,
+    this.description,
     required this.items,
     required this.itemBuilder,
     this.onAdd,
@@ -24,11 +27,23 @@ class ItemListSection<T> extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (description != null)
+                  Text(
+                    description!,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  ),
+              ],
             ),
             if (onAdd != null)
               IconButton(

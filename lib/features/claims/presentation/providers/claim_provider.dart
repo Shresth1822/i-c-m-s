@@ -122,7 +122,27 @@ class Claims extends _$Claims {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await ref.read(claimRepositoryProvider).deleteAdvance(id);
-      return ref.refresh(claimsProvider.future);
+
+      // Get fresh data to check business logic
+      var claims = await ref.refresh(claimsProvider.future);
+
+      bool statusChanged = false;
+      for (final claim in claims) {
+        if (claim.status == ClaimStatus.settled && claim.pendingAmount > 0) {
+          await ref
+              .read(claimRepositoryProvider)
+              .updateClaimStatus(claim.id, ClaimStatus.partiallySettled);
+          statusChanged = true;
+        }
+      }
+
+      // If we blindly refreshed inside the loop, we might do it multiple times.
+      // Better to refresh once at the end if needed.
+      if (statusChanged) {
+        claims = await ref.refresh(claimsProvider.future);
+      }
+
+      return claims;
     });
   }
 
@@ -163,7 +183,24 @@ class Claims extends _$Claims {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await ref.read(claimRepositoryProvider).deleteSettlement(id);
-      return ref.refresh(claimsProvider.future);
+
+      var claims = await ref.refresh(claimsProvider.future);
+
+      bool statusChanged = false;
+      for (final claim in claims) {
+        if (claim.status == ClaimStatus.settled && claim.pendingAmount > 0) {
+          await ref
+              .read(claimRepositoryProvider)
+              .updateClaimStatus(claim.id, ClaimStatus.partiallySettled);
+          statusChanged = true;
+        }
+      }
+
+      if (statusChanged) {
+        claims = await ref.refresh(claimsProvider.future);
+      }
+
+      return claims;
     });
   }
 }
