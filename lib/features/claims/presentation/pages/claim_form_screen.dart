@@ -180,17 +180,19 @@ class _ClaimFormScreenState extends ConsumerState<ClaimFormScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Status (Read-Only)
-              TextFormField(
-                initialValue: _selectedStatus.label,
-                decoration: const InputDecoration(
-                  labelText: 'Status',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.info_outline),
-                  enabled: false, // Make it read-only
+              if (isEditing) ...[
+                // Status (Read-Only)
+                TextFormField(
+                  initialValue: _selectedStatus.label,
+                  decoration: const InputDecoration(
+                    labelText: 'Status',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.info_outline),
+                    enabled: false, // Make it read-only
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
+                const SizedBox(height: 16),
+              ],
 
               // Save Button
               FilledButton.icon(
