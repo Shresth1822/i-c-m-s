@@ -3,10 +3,20 @@
 A robust, Flutter Web application backed by Supabase for managing hospital insurance claims. This project features a simulated Role-Based Access Control (RBAC) system, ensuring secure and logical workflows for both Applicants (Users) and Processors (Admins).
 
 ## 📸 Screenshots
-<img width="2879" height="1550" alt="image" src="https://github.com/user-attachments/assets/b20d386b-dd72-48ca-b721-fb00004d5a60" />
-<img width="2874" height="1456" alt="image" src="https://github.com/user-attachments/assets/62ee6367-b2c6-48a5-8570-f2e8cd050737" />
-<img width="2872" height="613" alt="image" src="https://github.com/user-attachments/assets/4695a994-e791-4cd9-8d87-f78d31ba2a4f" />
+<img src="https://github.com/user-attachments/assets/b20d386b-dd72-48ca-b721-fb0004d5a60"
+     alt="Dashboard"
+     style="max-width: 700px; width: 100%; border-radius: 8px;" />
 
+<img src="https://github.com/user-attachments/assets/62ee6367-b2c6-48a5-8570-f2e8cd050737"
+     alt="Claim Details"
+     style="max-width: 700px; width: 100%; border-radius: 8px;" />
+
+<img src="https://github.com/user-attachments/assets/4695a994-e791-4cd9-8d87-f78d31ba2a4f"
+     alt="Admin View"
+     style="max-width: 700px; width: 100%; border-radius: 8px;" />
+
+## A short video walkthrough link
+https://www.loom.com/share/c4b13e2c6db44287bcc378deda34d1e3
 
 ## 🚀 Live Demo
 
@@ -111,6 +121,7 @@ This project satisfies all assignment requirements:
 - Public deployment with live URL
 
 ---
+
 
 
 
