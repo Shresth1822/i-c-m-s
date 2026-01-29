@@ -180,27 +180,15 @@ class _ClaimFormScreenState extends ConsumerState<ClaimFormScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Status Dropdown
-              DropdownButtonFormField<ClaimStatus>(
-                initialValue: _selectedStatus,
+              // Status (Read-Only)
+              TextFormField(
+                initialValue: _selectedStatus.label,
                 decoration: const InputDecoration(
                   labelText: 'Status',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.flag_outlined),
+                  prefixIcon: Icon(Icons.info_outline),
+                  enabled: false, // Make it read-only
                 ),
-                items: ClaimStatus.values.map((status) {
-                  return DropdownMenuItem(
-                    value: status,
-                    child: Text(status.label),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedStatus = value;
-                    });
-                  }
-                },
               ),
               const SizedBox(height: 32),
 
