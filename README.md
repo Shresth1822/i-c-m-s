@@ -1,6 +1,12 @@
 ﻿# Insurance Claim Management System (ICMS)
 
-A robust, full-stack Flutter Web application for managing hospital insurance claims. This project features a simulated Role-Based Access Control (RBAC) system, ensuring secure and logical workflows for both Applicants (Users) and Processors (Admins).
+A robust, Flutter Web application backed by Supabase for managing hospital insurance claims. This project features a simulated Role-Based Access Control (RBAC) system, ensuring secure and logical workflows for both Applicants (Users) and Processors (Admins).
+
+## 📸 Screenshots
+<img width="2879" height="1550" alt="image" src="https://github.com/user-attachments/assets/b20d386b-dd72-48ca-b721-fb00004d5a60" />
+<img width="2874" height="1456" alt="image" src="https://github.com/user-attachments/assets/62ee6367-b2c6-48a5-8570-f2e8cd050737" />
+<img width="2872" height="613" alt="image" src="https://github.com/user-attachments/assets/4695a994-e791-4cd9-8d87-f78d31ba2a4f" />
+
 
 ## 🚀 Live Demo
 
@@ -8,11 +14,12 @@ A robust, full-stack Flutter Web application for managing hospital insurance cla
 
 ## ✨ Key Features
 
-### 🎨 Premium User Experience
+### 🎨 🎨 User Experience
 
-- **Modern UI**: Designed with a "Teal & Blue" professional palette, featuring gradient summary cards and frosted glass effects.
-- **Responsive Design**: optimized for web browsers.
-- **Guidance**: Contextual help descriptions for Bills, Advances, and Settlements.
+Clean, modern, and professional UI optimized for clarity and usability.
+Responsive layout for web browsers.
+Contextual guidance for Bills, Advances, and Settlements.
+
 
 ### 👥 Role-Based Access Control (Simulated)
 
@@ -31,7 +38,7 @@ Switch roles instantly using the toggle in the top-right corner to test differen
 
 ### ⚙️ Robust Business Logic
 
-- **Lifecycle Management**: Claims follow a strict state machine: `Draft` -> `Submitted` -> `Approved`/`Rejected` -> `Settled`.
+- **Lifecycle Management**: Claims follow a strict state machine: `Draft → Submitted → Approved / Rejected → Partially Settled → Settled`.
 - **Financial Integrity**: Real-time calculation of Total Bill, Paid Amount, and Pending Balance.
 - **Automatic Status**: The system automatically transitions claims to `Settled` when the balance reaches zero, and reverts to `Partially Settled` if a payment is deleted.
 
@@ -93,6 +100,17 @@ flutter run -d chrome
     - Try deleting the $300 settlement.
     - Status correctly reverts to `Partially Settled`.
 
+## 📌 Assignment Alignment
+
+This project satisfies all assignment requirements:
+- Creation and management of insurance claims
+- Bills, advances, settlements, and pending amount handling
+- Complete claim status workflow
+- Automatic calculations
+- Dashboard view of claims
+- Public deployment with live URL
+
 ---
+
 
 
